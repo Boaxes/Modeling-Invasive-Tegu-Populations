@@ -1,8 +1,8 @@
-# Agent-Based Simulation of Invasive Tegu Population Dynamics
+# Modeling Invasive Tegu Populations
 
-This project models the spread of invasive tegus in the Florida Everglades using a graph-based agent simulation with a Pygame viewer.
+**Quarter:** Spring 2025  
 
-## Program View
+An agent-based simulation of how Argentine black and white tegus (*Salvator merianae*), an invasive species in the Florida Everglades, might spread across a habitat graph over time. Built in Python with a Pygame viewer for interactive exploration.
 
 ![Everglades Viewer screenshot](Figure7.png)
 
@@ -38,39 +38,36 @@ Each time you press `Space`, the program advances the simulation by one timestep
 ---
 
 ## Writeup
-    
 
 ### Overview
 
-The following writeup describes a personal project that uses graph theory in the context of mathematical biology. The model is not intended to be fully biologically accurate. Instead, it serves as an exercise and example of how graph-based methods can be applied to ecological modeling.
+This writeup describes the project's use of graph theory in the context of mathematical biology. The model is not intended to be fully biologically accurate; it serves as an exercise in how graph-based methods can be applied to ecological modeling.
 
-Argentine black and white tegus (*Salvator merianae*) are a rapidly spreading invasive species in the Florida Everglades. These lizards can threaten native ecosystems by preying on local species and competing for resources. For background, see this ecological study: [Ecosphere DOI](https://doi.org/10.1002/ecs2.3579).
+[Argentine black and white tegus (*Salvator merianae*) are a rapidly spreading invasive species in the Florida Everglades.](https://doi.org/10.1002/ecs2.3579) These lizards can threaten native ecosystems by preying on local species and competing for resources.
 
 This project explores a simplified agent-based simulation to show how graph theory and spatial modeling techniques can be used to study invasive spread.
 
 ### Methodology
 
-The model was implemented in Python using `pygame` for visualization and interaction, along with NumPy and SciPy for numerical operations. A satellite image of the Florida Everglades was overlaid with a spatially aligned grid system.
+The model was implemented in Python using `pygame` for visualization and interaction, along with `numpy` and `scipy` for numerical operations. A satellite image of the Florida Everglades was overlaid with a spatially aligned grid system.
 
 We began with a 100 x 100 uniform grid of candidate nodes. This full grid was not used directly. Instead, we built a connected subgraph by activating nodes and edges through a selective, desirability-driven expansion process.
 
-To simulate habitat variability, we created a scalar field that assigns a "desirability score" to each location. This field is constructed by filtering random noise with a Gaussian kernel and then applying histogram equalization to produce a smooth but structured distribution. Let `D(x, y)` represent the desirability value at coordinates `(x, y)`. For each node, we sample `D` to assign its desirability score.
+To simulate habitat variability, we created a scalar field that assigns a "desirability score" to each location. This field is constructed by filtering random noise with a Gaussian kernel and then applying histogram equalization to produce a smooth but structured distribution. Let $D(x, y)$ represent the desirability value at coordinates $(x, y)$. For each node, we sample $D$ to assign its desirability score.
 
 We then select a small set of highly desirable seed nodes:
 
-```text
-S = {s1, s2, ..., sk}
-```
+$$S = \{s_1, s_2, \dots, s_k\}$$
 
-These are chosen to be spatially separated and high in desirability. From each seed node, we grow a region by performing a random walk that preferentially activates nodes in more desirable areas. Edges between nodes are formed in a similar way, and each edge receives a desirability weight sampled from `D` at its midpoint.
+These are chosen to be spatially separated and high in desirability. From each seed node, we grow a region by performing a random walk that preferentially activates nodes in more desirable areas. Edges between nodes are formed in a similar way, and each edge receives a desirability weight sampled from $D$ at its midpoint.
 
 #### Graph Generation
 
 Graph generation proceeds in four steps:
 
-1. Create the scalar desirability field `D(x, y)`.
-2. Choose `k` seed nodes `S` from high-desirability areas.
-3. Perform desirability-weighted random walks from each `si` to activate connected nodes.
+1. Create the scalar desirability field $D(x, y)$.
+2. Choose $k$ seed nodes $S$ from high-desirability areas.
+3. Perform desirability-weighted random walks from each $s_i$ to activate connected nodes.
 4. Connect seed regions with stochastic paths to ensure overall connectivity.
 
 The resulting graph is a biologically inspired subset of the full grid, focusing computational effort on plausible habitat.
@@ -79,36 +76,25 @@ The resulting graph is a biologically inspired subset of the full grid, focusing
 
 Each tegu agent is characterized by:
 
-- Current position: `(i, j)`
-- Age: `a`
-- Lifespan: `L`, randomly selected from 15 to 20 timesteps
+- Current position: $(i, j)$
+- Age: $a$
+- Lifespan: $L$, randomly selected from 15 to 20 timesteps
 
-At each timestep, the agent decides whether to move based on edge desirability and crowding at neighboring nodes. The probability of moving to a neighboring node `v` is:
+At each timestep, the agent decides whether to move based on edge desirability and crowding at neighboring nodes. Each neighboring node $v$ is assigned a score:
 
-```text
-P(v) proportional to desirability_(i,j)->v * (1 + (100 - population_v) / 20)
-```
+$$\text{score}(v) = d_{(i,j) \to v} \cdot \left(1 + \frac{100 - n_v}{20}\right)$$
 
-Where:
+where $d_{(i,j) \to v}$ is the edge desirability between the current node and $v$, and $n_v$ is the number of tegus currently at $v$. The agent then picks a neighbor at random with probability proportional to its score, so destinations that are both desirable and uncrowded are favored.
 
-- `desirability_(i,j)->v` is the edge desirability between the current node and `v`
-- `population_v` is the number of tegus currently at node `v`
+If an agent's age reaches its lifespan ($a \geq L$), it is removed from the simulation. Reproduction occurs if a node has at least 2 tegus. A new tegu is added with probability:
 
-This gives higher preference to edges that are both desirable and lead to less crowded destinations.
+$$P_\text{birth} = \max\left(0.05,\ 1 - \frac{n}{20}\right)$$
 
-If an agent's age reaches its lifespan (`a >= L`), it is removed from the simulation. Reproduction occurs if a node has at least 2 tegus. A new tegu is added with probability:
-
-```text
-P_birth = max(0.05, 1 - n / 20)
-```
-
-Where `n` is the current number of tegus at the node.
+where $n$ is the current number of tegus at the node.
 
 This discourages reproduction in highly crowded areas, promoting expansion into underused habitat.
 
 ### Results
-
-For full results, see the four supplementary GIFs included with this repository.
 
 For visualization, the simulation saves a snapshot of the scalar field and desirability field at each timestep. External software was then used to combine those snapshots into GIFs. The first two simulations show 50 and 100 timesteps using Seed 1. The latter two show 100 and 500 timesteps using Seed 2. Even when the same random seed is reused, the stochastic graph-generation process means the resulting graphs are not identical across runs.
 
@@ -116,21 +102,13 @@ For visualization, the simulation saves a snapshot of the scalar field and desir
 
 ![50 time-step simulation using Seed 1](GIFS/Supplementary%20GIF%201.gif)
 
-*Figure 8: 50 time-step simulation using Seed 1.*
-
 ![100 time-step simulation using Seed 1](GIFS/Supplementary%20GIF%202.gif)
-
-*Figure 9: 100 time-step simulation using Seed 1.*
 
 #### Seed 2: 100 and 500 Timesteps
 
 ![100 time-step simulation using Seed 2](GIFS/Supplementary%20GIF%203.gif)
 
-*Figure 10: 100 time-step simulation using Seed 2.*
-
 ![500 time-step simulation using Seed 2](GIFS/Supplementary%20GIF%204.gif)
-
-*Figure 11: 500 time-step simulation using Seed 2.*
 
 #### Interpretation of Results
 
