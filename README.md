@@ -1,7 +1,5 @@
 # Modeling Invasive Tegu Populations
 
-**Quarter:** Spring 2025  
-
 An agent-based simulation of how Argentine black and white tegus (*Salvator merianae*), an invasive species in the Florida Everglades, might spread across a habitat graph over time. Built in Python with a Pygame viewer for interactive exploration.
 
 ![Everglades Viewer screenshot](Figure7.png)
