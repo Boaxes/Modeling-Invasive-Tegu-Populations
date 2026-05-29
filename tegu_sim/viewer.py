@@ -15,6 +15,7 @@ def draw_mini_preview(state):
     screen = state.screen
     preview_surface = state.preview_surface
     VIEW_WIDTH = state.VIEW_WIDTH
+    VIEW_HEIGHT = state.VIEW_HEIGHT
     PREVIEW_WIDTH = state.PREVIEW_WIDTH
     PREVIEW_HEIGHT = state.PREVIEW_HEIGHT
     img_width = state.img_width
