@@ -4,7 +4,9 @@
 
 ## Description
 
-An agent-based simulation of invasive Argentine black and white tegu (*Salvator merianae*) population spread across the Florida Everglades, visualized in real time over satellite imagery. Built with `pygame`, `numpy`, `scipy`, `matplotlib`, and `Pillow`. For a full mathematical presentation of the model, [see the original paper here](https://drive.google.com/file/d/1JGha21ooZma4E8qc3kM4hL-1Og2eA54A/view?usp=sharing) (model discussion starts on page 8).
+An agent-based simulation of invasive Argentine black and white tegu (*Salvator merianae*) population spread across the Florida Everglades, visualized in real time over satellite imagery. Built with `pygame`, `numpy`, `scipy`, `matplotlib`, and `Pillow`.
+
+For a full mathematical presentation of the model, [see the original paper here](https://drive.google.com/file/d/1JGha21ooZma4E8qc3kM4hL-1Og2eA54A/view?usp=sharing) (model discussion starts on page 8).
 
 ## Motivation
 
