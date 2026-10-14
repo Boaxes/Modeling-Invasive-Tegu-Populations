@@ -1,0 +1,5 @@
+__pycache__/
+frames/
+web/node_modules/
+web/dist/
+_site/

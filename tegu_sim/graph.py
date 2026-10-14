@@ -1,8 +1,6 @@
-import time
 import random
 
 import numpy as np
-import pygame
 from scipy.ndimage import gaussian_filter
 
 
@@ -66,37 +64,23 @@ def build_graph(state):
                 )
                 edge_desirability[((i, j), (ni, nj))] = desirability
 
+    # Index outgoing edges by source node (keeps edge_desirability insertion order)
+    edges_from = {}
+    for ((i1, j1), (i2, j2)), d in edge_desirability.items():
+        edges_from.setdefault((i1, j1), []).append(((i2, j2), d))
+
     # Compute node desirability from edge desirability
     for i in range(grid_size):
         for j in range(grid_size):
             connected = [
                 d
-                for ((i1, j1), (i2, j2)), d in edge_desirability.items()
-                if (i1, j1) == (i, j)
+                for (i2, j2), d in edges_from.get((i, j), [])
             ]
             desirability = sum(connected) / len(connected) if connected else 0.0
             node_data[(i, j)]["desirability"] = desirability
 
     print("Step 1: Grid and edge desirabilities computed.")
     print(f"Nodes: {len(node_data)}, Edges: {len(grid_edges)}")
-
-    # === Select 8 most desirable nodes with quadrant coverage ===
-    all_nodes = list(node_data.items())
-    all_nodes.sort(key=lambda x: x[1]["desirability"], reverse=True)
-    quadrant = lambda i, j: (i >= grid_size // 2) * 2 + (j >= grid_size // 2)  # 0=TL, 1=TR, 2=BL, 3=BR
-
-    used_quadrants = set()
-    top_seeds = []
-
-    for k, v in all_nodes:
-        q = quadrant(*k)
-        if q not in used_quadrants:
-            used_quadrants.add(q)
-            top_seeds.append(k)
-        elif len(top_seeds) < 8:
-            top_seeds.append(k)
-        if len(top_seeds) >= 8 and len(used_quadrants) == 4:
-            break
 
     all_nodes = list(node_data.items())
     all_nodes.sort(key=lambda x: x[1]["desirability"], reverse=True)
@@ -118,8 +102,6 @@ def build_graph(state):
             break
 
     # === Random walk expansion ===
-    import time
-
     active_nodes = set(top_seeds)
     active_edges = set()
 
@@ -264,16 +246,15 @@ def build_graph(state):
 
     tegu_colored = np.zeros((field_height, field_width, 3), dtype=np.uint8)
     tegu_colored[..., 1] = (tegu_field * 255).astype(np.uint8)  # Green channel
-    tegu_surface = pygame.surfarray.make_surface(np.transpose(tegu_colored, (1, 0, 2)))
 
     state.edge_desirability = edge_desirability
+    state.edges_from = edges_from
     state.grid_nodes = grid_nodes
     state.grid_edges = grid_edges
     state.grid_size = grid_size
     state.spacing_x = spacing_x
     state.spacing_y = spacing_y
     state.node_data = node_data
-    state.used_quadrants = used_quadrants
     state.top_seeds = top_seeds
     state.DIST_THRESH = DIST_THRESH
     state.active_nodes = active_nodes
@@ -282,6 +263,5 @@ def build_graph(state):
     state.total_tegus = total_tegus
     state.tegu_field = tegu_field
     state.tegu_colored = tegu_colored
-    state.tegu_surface = tegu_surface
 
     return state

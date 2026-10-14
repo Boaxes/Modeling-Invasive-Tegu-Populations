@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Everglades Viewer</title>
+    <meta name="description" content="Agent-based simulation of invasive Argentine tegu spread across the Florida Everglades, running Python in the browser via Pyodide.">
+    <style>
+        :root {
+            --bg: #111;
+            --fg: #e8e8e8;
+            --muted: #9a9a9a;
+            --panel: #1c1c1c;
+            --border: #333;
+            --accent: #3ddc84;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            padding: 16px;
+            background: var(--bg);
+            color: var(--fg);
+            font: 14px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif;
+        }
+        main { max-width: 1036px; margin: 0 auto; }
+        #app { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start; }
+        h1 { font-size: 18px; margin: 0 0 4px; }
+        p { margin: 0 0 12px; color: var(--muted); }
+        a { color: var(--accent); }
+        #stage { position: relative; flex: 1 1 560px; max-width: 800px; aspect-ratio: 4 / 3; background: #000; border: 1px solid var(--border); }
+        #panel { flex: 0 0 220px; font: 15px/1.35 Arial, sans-serif; }
+        #panel pre { margin: 0 0 12px; font: inherit; white-space: pre-wrap; }
+        #node-info { min-height: calc(4 * 1.35em); }
+        #panel canvas, #panel svg { display: block; margin-bottom: 12px; }
+        #panel .caption { color: var(--muted); font-size: 13px; margin-bottom: 2px; }
+        #screen { display: block; width: 100%; height: 100%; cursor: crosshair; touch-action: none; }
+        #overlay {
+            position: absolute; inset: 0; padding: 16px; overflow: auto;
+            background: rgba(0, 0, 0, 0.85);
+        }
+        #overlay[hidden] { display: none; }
+        #overlay.error #log { color: #ff8080; }
+        #log { margin: 0; white-space: pre-wrap; font: 13px/1.5 ui-monospace, Menlo, Consolas, monospace; }
+        #controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 12px; }
+        #controls label { color: var(--muted); }
+        input, button {
+            font: inherit; color: var(--fg); background: var(--panel);
+            border: 1px solid var(--border); border-radius: 4px; padding: 6px 10px;
+        }
+        input { width: 9em; }
+        button { cursor: pointer; }
+        button:hover:not(:disabled) { border-color: var(--accent); }
+        button:disabled { opacity: 0.5; cursor: default; }
+        #status { color: var(--accent); margin-left: auto; }
+        ul { margin: 12px 0 0; padding-left: 20px; color: var(--muted); }
+    </style>
+</head>
+<body>
+<main>
+    <h1>Modeling Invasive Tegu Populations</h1>
+    <p>Agent-based model of Argentine tegu spread across the Everglades. The simulation core is the original Python, running in your browser via Pyodide.
+        <a href="https://github.com/boaxes/modeling-invasive-tegu-populations">Source</a></p>
+
+    <div id="app">
+        <div id="stage">
+            <canvas id="screen" width="800" height="600"></canvas>
+            <div id="overlay"><pre id="log">Loading...</pre></div>
+        </div>
+
+        <div id="panel">
+            <pre id="hud"></pre>
+            <pre id="node-info"></pre>
+            <canvas id="minimap"></canvas>
+            <div class="caption">Total Tegus</div>
+            <svg id="chart-total" width="200" height="80" viewBox="0 0 200 80"></svg>
+            <div class="caption">Nodes with Tegus</div>
+            <svg id="chart-occupied" width="200" height="80" viewBox="0 0 200 80"></svg>
+        </div>
+    </div>
+
+    <div id="controls">
+        <label for="seed">Seed</label>
+        <input id="seed" inputmode="numeric" placeholder="random">
+        <button id="restart">Restart</button>
+        <button id="step" disabled>Step (Space)</button>
+        <button id="heatmap" disabled>Heatmap (H)</button>
+        <button id="save" disabled>Save frame</button>
+        <span id="status"></span>
+    </div>
+
+    <ul>
+        <li><kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd>: pan, mouse wheel: zoom, click a node for info</li>
+        <li><kbd>Space</kbd>: advance one timestep, <kbd>H</kbd>: cycle heatmap (none / desirability / tegu count)</li>
+        <li>Save frame downloads the desirability + tegu heatmap image for the current timestep</li>
+    </ul>
+</main>
+<script type="module" src="dist/main.js"></script>
+</body>
+</html>

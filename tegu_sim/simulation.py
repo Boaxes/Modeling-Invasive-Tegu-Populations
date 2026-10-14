@@ -1,7 +1,6 @@
 import random
 
 import numpy as np
-import pygame
 from scipy.ndimage import gaussian_filter
 
 
@@ -31,6 +30,7 @@ def initialize_agents(state):
 # Ensure availability for debug display
 def update_tegu_field(state, previous_agents):
     edge_desirability = state.edge_desirability
+    edges_from = state.edges_from
     node_data = state.node_data
     grid_nodes = state.grid_nodes
     scalar_field = state.scalar_field
@@ -63,8 +63,8 @@ def update_tegu_field(state, previous_agents):
 
         neighbors = [
             (ni, nj)
-            for ((i1, j1), (ni, nj)), desir in edge_desirability.items()
-            if (i1, j1) == (i, j) and (ni, nj) in node_data
+            for (ni, nj), desir in edges_from.get((i, j), [])
+            if (ni, nj) in node_data
         ]
 
         stay_score = node_data[(i, j)]["desirability"]
@@ -156,13 +156,11 @@ def update_tegu_field(state, previous_agents):
     tegu_field = (tegu_field - tegu_field.min()) / np.ptp(tegu_field + 1e-5)
     tegu_colored = np.zeros((field_height, field_width, 3), dtype=np.uint8)
     tegu_colored[..., 1] = (tegu_field * 255).astype(np.uint8)
-    tegu_surface = pygame.surfarray.make_surface(np.transpose(tegu_colored, (1, 0, 2)))
 
     state.agents = agents
     state.new_agents = new_agents
     state.tegu_field = tegu_field
     state.tegu_colored = tegu_colored
-    state.tegu_surface = tegu_surface
     state.tegus_born = tegus_born
     state.tegus_died = tegus_died
 

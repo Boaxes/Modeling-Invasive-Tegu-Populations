@@ -1,0 +1,12 @@
+{
+    "name": "tegu-sim-web",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "build": "tsc -p .",
+        "watch": "tsc -p . --watch"
+    },
+    "devDependencies": {
+        "typescript": "5.9.3"
+    }
+}
